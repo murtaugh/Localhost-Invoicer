@@ -100,7 +100,7 @@
   .head {
 	display: grid; grid-template-columns: 1fr auto;
 	gap: 28px; align-items: start;
-	padding-bottom: 26px; margin-bottom: 22px;
+	padding-bottom: 18px; margin-bottom: 16px;
 	border-bottom: 2px solid var(--ink);
   }
   .biz-logo {
@@ -124,25 +124,25 @@
 	color: var(--ink); line-height: 1; margin-bottom: 14px;
   }
   .meta-grid {
-	display: grid; grid-template-columns: auto 1fr; gap: 8px 14px;
-	font-size: 13px; text-align: left; justify-self: end;
+	display: grid; grid-template-columns: auto auto; gap: 8px 14px;
+	justify-content: end; font-size: 13px;
   }
   .meta-grid .lbl {
 	color: var(--muted); text-transform: uppercase; letter-spacing: .07em;
 	font-size: 11px; font-weight: 600; align-self: center; text-align: right;
   }
-  .meta-grid .val { font-family: var(--mono); font-size: 13px; }
-  .meta-grid .val .f { font-family: var(--mono); text-align: left; }
+  .meta-grid .val { font-family: var(--mono); font-size: 13px; text-align: right; }
+  .meta-grid .val .f { font-family: var(--mono); text-align: right; width: 116px; }
 
   /* invoice title / subject */
-  .subject { margin-bottom: 30px; }
+  .subject { margin-bottom: 20px; }
   .subject .eyebrow { margin-bottom: 3px; }
   .subject input.f {
 	font-size: 20px; font-weight: 500; letter-spacing: -0.01em; color: var(--ink);
   }
 
   /* bill to */
-  .parties { display: flex; justify-content: space-between; gap: 40px; margin-bottom: 34px; }
+  .parties { display: flex; justify-content: space-between; gap: 40px; margin-bottom: 22px; }
   .party { flex: 1; }
   .eyebrow {
 	text-transform: uppercase; letter-spacing: .1em; font-size: 11px;
@@ -188,7 +188,7 @@
   .add-row { margin: 6px 0 0; }
 
   /* totals */
-  .foot { display: grid; grid-template-columns: 1fr 300px; gap: 40px; margin-top: 26px; }
+  .foot { display: grid; grid-template-columns: 1fr 300px; gap: 40px; margin-top: 18px; }
   .totals { display: grid; gap: 6px; }
   .totals .grand {
 	display: grid; grid-template-columns: 1fr auto; align-items: baseline; gap: 12px;
@@ -201,7 +201,7 @@
   .totals .paydue .k { text-transform: uppercase; letter-spacing: .07em; font-size: 11px; font-weight: 600; color: var(--muted); }
   .totals .paydue .v { font-family: var(--mono); font-size: 13px; color: var(--ink-soft); text-align: right; }
 
-  .notes { margin-top: 34px; padding-top: 22px; border-top: 1px solid var(--line-soft); }
+  .notes { margin-top: 22px; padding-top: 16px; border-top: 1px solid var(--line-soft); }
   .notes .eyebrow { margin-bottom: 6px; }
   .notes .f { font-size: 13px; color: var(--ink-soft); }
 
@@ -285,7 +285,7 @@
 	.sheet { padding: 30px 22px; }
 	.head { grid-template-columns: 1fr; }
 	.doc-meta { text-align: left; }
-	.meta-grid { justify-self: start; }
+	.meta-grid { justify-content: start; }
 	.parties { flex-direction: column; gap: 22px; }
 	.foot { grid-template-columns: 1fr; }
 	th.svc { width: 92px; } th.qty { width: 54px; } th.rate, th.amt { width: 80px; }
@@ -375,7 +375,7 @@
 	<!-- NOTES -->
 	<div class="notes">
 	  <div class="eyebrow">Notes</div>
-	  <textarea class="f" id="notes" rows="3" placeholder="Notes..."></textarea>
+	  <textarea class="f" id="notes" rows="3"></textarea>
 	</div>
 
   </div>
@@ -532,7 +532,7 @@
 	tr.querySelector(".desc").value = item.desc || "";
 	tr.querySelector(".svc").value = item.svc || "";
 	tr.querySelector(".qty").value = item.qty;
-	tr.querySelector(".rate").value = item.rate;
+	tr.querySelector(".rate").value = item.rate ? item.rate : "";
 	tr.querySelector(".row-x").onclick = function () { tr.remove(); recalc(); };
 	var ta = tr.querySelector(".desc");
 	autoGrow(ta); ta.addEventListener("input", function () { autoGrow(ta); });
@@ -541,7 +541,15 @@
 	$("itemsBody").appendChild(tr);
 	return tr;
   }
-  function autoGrow(el) { el.style.height = "auto"; el.style.height = (el.scrollHeight) + "px"; }
+  function autoGrow(el) {
+	// Measure with min-height neutralized so the on-screen floor (e.g. the
+	// taller description box) doesn't get baked into the printed height.
+	var prevMin = el.style.minHeight;
+	el.style.minHeight = "0";
+	el.style.height = "auto";
+	el.style.height = (el.scrollHeight) + "px";
+	el.style.minHeight = prevMin;
+  }
 
   function recalc() {
 	var rows = $("itemsBody").querySelectorAll("tr");
